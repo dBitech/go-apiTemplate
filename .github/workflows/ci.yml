@@ -48,7 +48,8 @@ jobs:
         with:
           files: ./coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          slug: dBitech/go-apiTemplate
+          fail_ci_if_error: false
 
   build:
     name: Build
