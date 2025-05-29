@@ -21,39 +21,39 @@ type MockRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) GetExample(ctx context.Context, id string) (*models.Example, error) {
-	args := m.Called(ctx, id)
+func (m *MockRepository) GetExample(_ context.Context, id string) (*models.Example, error) {
+	args := m.Called(mock.Anything, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*models.Example), args.Error(1)
 }
 
-func (m *MockRepository) ListExamples(ctx context.Context, limit, offset int) ([]*models.Example, error) {
-	args := m.Called(ctx, limit, offset)
+func (m *MockRepository) ListExamples(_ context.Context, limit, offset int) ([]*models.Example, error) {
+	args := m.Called(mock.Anything, limit, offset)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*models.Example), args.Error(1)
 }
 
-func (m *MockRepository) CreateExample(ctx context.Context, example *models.Example) error {
-	args := m.Called(ctx, example)
+func (m *MockRepository) CreateExample(_ context.Context, example *models.Example) error {
+	args := m.Called(mock.Anything, example)
 	return args.Error(0)
 }
 
-func (m *MockRepository) UpdateExample(ctx context.Context, example *models.Example) error {
-	args := m.Called(ctx, example)
+func (m *MockRepository) UpdateExample(_ context.Context, example *models.Example) error {
+	args := m.Called(mock.Anything, example)
 	return args.Error(0)
 }
 
-func (m *MockRepository) DeleteExample(ctx context.Context, id string) error {
-	args := m.Called(ctx, id)
+func (m *MockRepository) DeleteExample(_ context.Context, id string) error {
+	args := m.Called(mock.Anything, id)
 	return args.Error(0)
 }
 
-func (m *MockRepository) Ping(ctx context.Context) error {
-	args := m.Called(ctx)
+func (m *MockRepository) Ping(_ context.Context) error {
+	args := m.Called(mock.Anything)
 	return args.Error(0)
 }
 
@@ -83,7 +83,7 @@ func TestService(t *testing.T) {
 		}
 
 		// Setup expectations
-		mockRepo.On("GetExample", ctx, id).Return(expected, nil)
+		mockRepo.On("GetExample", mock.Anything, id).Return(expected, nil)
 
 		// Call service method
 		result, err := svc.GetExample(ctx, id)
@@ -99,7 +99,7 @@ func TestService(t *testing.T) {
 		id := uuid.New().String()
 
 		// Setup expectations
-		mockRepo.On("GetExample", ctx, id).Return(nil, repository.ErrNotFound)
+		mockRepo.On("GetExample", mock.Anything, id).Return(nil, repository.ErrNotFound)
 
 		// Call service method
 		result, err := svc.GetExample(ctx, id)
@@ -120,7 +120,7 @@ func TestService(t *testing.T) {
 		}
 
 		// Setup expectations
-		mockRepo.On("ListExamples", ctx, limit, offset).Return(expected, nil)
+		mockRepo.On("ListExamples", mock.Anything, limit, offset).Return(expected, nil)
 
 		// Call service method
 		result, err := svc.ListExamples(ctx, limit, offset)
@@ -139,7 +139,7 @@ func TestService(t *testing.T) {
 		}
 
 		// Setup expectations - using mock.Anything for ID since it's generated
-		mockRepo.On("CreateExample", ctx, mock.Anything).Return(nil)
+		mockRepo.On("CreateExample", mock.Anything, mock.Anything).Return(nil)
 
 		// Call service method
 		result, err := svc.CreateExample(ctx, req)
@@ -167,8 +167,8 @@ func TestService(t *testing.T) {
 		}
 
 		// Setup expectations
-		mockRepo.On("GetExample", ctx, id).Return(existingExample, nil)
-		mockRepo.On("UpdateExample", ctx, mock.Anything).Return(nil)
+		mockRepo.On("GetExample", mock.Anything, id).Return(existingExample, nil)
+		mockRepo.On("UpdateExample", mock.Anything, mock.Anything).Return(nil)
 
 		// Call service method
 		result, err := svc.UpdateExample(ctx, id, req)
@@ -186,7 +186,7 @@ func TestService(t *testing.T) {
 		id := uuid.New().String()
 
 		// Setup expectations
-		mockRepo.On("DeleteExample", ctx, id).Return(nil)
+		mockRepo.On("DeleteExample", mock.Anything, id).Return(nil)
 
 		// Call service method
 		err := svc.DeleteExample(ctx, id)

@@ -1,7 +1,10 @@
+// Package handlers provides HTTP request handlers for the API endpoints.
+// It includes common utilities for response formatting and error handling.
 package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/dBiTech/go-apiTemplate/internal/auth"
 	"github.com/dBiTech/go-apiTemplate/internal/models"
 	"github.com/dBiTech/go-apiTemplate/internal/repository"
 	"github.com/dBiTech/go-apiTemplate/internal/service"
@@ -18,11 +22,11 @@ import (
 // Handler provides HTTP handlers
 type Handler struct {
 	log     logger.Logger
-	service *service.Service
+	service service.Interface
 }
 
 // NewHandler creates a new handler instance
-func NewHandler(log logger.Logger, service *service.Service) *Handler {
+func NewHandler(log logger.Logger, service service.Interface) *Handler {
 	return &Handler{
 		log:     log,
 		service: service,
@@ -41,13 +45,21 @@ func RespondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status":500,"message":"Internal Server Error"}`))
+		_, writeErr := w.Write([]byte(`{"status":500,"message":"Internal Server Error"}`))
+		if writeErr != nil {
+			// Just log to stdout if the logger isn't available
+			fmt.Printf("Failed to write error response: %v\n", writeErr)
+		}
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(response)
+	_, writeErr := w.Write(response)
+	if writeErr != nil {
+		// Just log to stdout if the logger isn't available
+		fmt.Printf("Failed to write response: %v\n", writeErr)
+	}
 }
 
 // RespondError sends an error response
@@ -437,7 +449,7 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 		span.SetAttributes(attribute.String("handler", "userProfile"))
 
 		// Get user ID from context (set by auth middleware)
-		userID, ok := ctx.Value("user_id").(string)
+		userID, ok := auth.GetUserID(ctx)
 		if !ok {
 			log.Error("user ID not found in context")
 			RespondError(w, http.StatusInternalServerError, "User ID not found", nil)

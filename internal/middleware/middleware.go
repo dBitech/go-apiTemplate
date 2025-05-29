@@ -1,3 +1,5 @@
+// Package middleware provides HTTP middleware components for request processing.
+// It includes authentication, logging, CORS, and other cross-cutting concerns.
 package middleware
 
 import (

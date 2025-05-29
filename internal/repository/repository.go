@@ -37,7 +37,7 @@ func NewMemoryRepository(log logger.Logger) *MemoryRepository {
 }
 
 // GetExample gets an example by ID
-func (r *MemoryRepository) GetExample(ctx context.Context, id string) (*models.Example, error) {
+func (r *MemoryRepository) GetExample(_ context.Context, id string) (*models.Example, error) {
 	r.log.Debug("getting example", logger.String("id", id))
 
 	if example, ok := r.examples[id]; ok {
@@ -48,7 +48,7 @@ func (r *MemoryRepository) GetExample(ctx context.Context, id string) (*models.E
 }
 
 // ListExamples lists examples
-func (r *MemoryRepository) ListExamples(ctx context.Context, limit, offset int) ([]*models.Example, error) {
+func (r *MemoryRepository) ListExamples(_ context.Context, limit, offset int) ([]*models.Example, error) {
 	r.log.Debug("listing examples", logger.Int("limit", limit), logger.Int("offset", offset))
 
 	examples := make([]*models.Example, 0, len(r.examples))
@@ -65,7 +65,7 @@ func (r *MemoryRepository) ListExamples(ctx context.Context, limit, offset int) 
 }
 
 // CreateExample creates a new example
-func (r *MemoryRepository) CreateExample(ctx context.Context, example *models.Example) error {
+func (r *MemoryRepository) CreateExample(_ context.Context, example *models.Example) error {
 	r.log.Debug("creating example", logger.String("id", example.ID))
 
 	if _, ok := r.examples[example.ID]; ok {
@@ -78,7 +78,7 @@ func (r *MemoryRepository) CreateExample(ctx context.Context, example *models.Ex
 }
 
 // UpdateExample updates an example
-func (r *MemoryRepository) UpdateExample(ctx context.Context, example *models.Example) error {
+func (r *MemoryRepository) UpdateExample(_ context.Context, example *models.Example) error {
 	r.log.Debug("updating example", logger.String("id", example.ID))
 
 	if _, ok := r.examples[example.ID]; !ok {
@@ -92,7 +92,7 @@ func (r *MemoryRepository) UpdateExample(ctx context.Context, example *models.Ex
 }
 
 // DeleteExample deletes an example
-func (r *MemoryRepository) DeleteExample(ctx context.Context, id string) error {
+func (r *MemoryRepository) DeleteExample(_ context.Context, id string) error {
 	r.log.Debug("deleting example", logger.String("id", id))
 
 	if _, ok := r.examples[id]; !ok {
@@ -105,7 +105,7 @@ func (r *MemoryRepository) DeleteExample(ctx context.Context, id string) error {
 }
 
 // Ping checks database connectivity
-func (r *MemoryRepository) Ping(ctx context.Context) error {
+func (r *MemoryRepository) Ping(_ context.Context) error {
 	// For memory repository, this always succeeds
 	return nil
 }

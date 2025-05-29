@@ -1,3 +1,5 @@
+// Package repository provides data access layer functionality.
+// It includes repository interfaces, implementations, and common errors for data operations.
 package repository
 
 import "errors"

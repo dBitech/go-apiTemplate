@@ -1,3 +1,6 @@
+// Package main provides the entry point for the Go API template application.
+// This is the main command that starts the HTTP server with all configured middleware,
+// handlers, and services for the API template.
 package main
 
 import (

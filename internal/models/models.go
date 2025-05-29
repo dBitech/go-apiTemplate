@@ -1,3 +1,5 @@
+// Package models defines the data structures used throughout the application.
+// It includes request/response models, domain entities, and data transfer objects.
 package models
 
 import (

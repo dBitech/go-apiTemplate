@@ -1,3 +1,5 @@
+// Package health provides health check functionality for the application.
+// It includes health status monitoring, dependency checks, and HTTP health endpoints.
 package health
 
 import (
@@ -6,6 +8,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/dBiTech/go-apiTemplate/pkg/logger"
 )
 
 // Status represents the current status of a component
@@ -34,20 +38,21 @@ type Component struct {
 // Check is a function that performs a health check on a component
 type Check func(ctx context.Context) Component
 
-// HealthCheck provides health/readiness/liveness endpoints
-type HealthCheck struct {
+// Checker provides health/readiness/liveness endpoints
+type Checker struct {
 	appName     string
 	version     string
 	description string
 	checks      []Check
 	mu          sync.RWMutex
-	cache       *HealthStatus
+	cache       *StatusResponse
 	cacheTTL    time.Duration
 	lastUpdate  time.Time
+	log         logger.Logger // Add logger for error handling
 }
 
-// HealthStatus represents the overall health status of the service
-type HealthStatus struct {
+// StatusResponse represents the overall health status of the service
+type StatusResponse struct {
 	Name        string      `json:"name"`
 	Version     string      `json:"version"`
 	Description string      `json:"description,omitempty"`
@@ -57,18 +62,19 @@ type HealthStatus struct {
 }
 
 // NewHealthCheck creates a new health check handler
-func NewHealthCheck(appName, version, description string) *HealthCheck {
-	return &HealthCheck{
+func NewHealthCheck(appName, version, description string, log logger.Logger) *Checker {
+	return &Checker{
 		appName:     appName,
 		version:     version,
 		description: description,
 		checks:      []Check{},
 		cacheTTL:    time.Second * 10,
+		log:         log,
 	}
 }
 
 // AddCheck adds a health check component
-func (h *HealthCheck) AddCheck(check Check) {
+func (h *Checker) AddCheck(check Check) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.checks = append(h.checks, check)
@@ -76,7 +82,7 @@ func (h *HealthCheck) AddCheck(check Check) {
 }
 
 // HealthHandler handles the /health endpoint
-func (h *HealthCheck) HealthHandler() http.HandlerFunc {
+func (h *Checker) HealthHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -84,15 +90,17 @@ func (h *HealthCheck) HealthHandler() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpStatus)
-		json.NewEncoder(w).Encode(status)
+		if err := json.NewEncoder(w).Encode(status); err != nil {
+			h.log.Error("Failed to encode health status", logger.Error(err))
+		}
 	}
 }
 
 // LivenessHandler handles the /health/liveness endpoint
-func (h *HealthCheck) LivenessHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (h *Checker) LivenessHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		// For liveness, we just return 200 OK if the server is running
-		status := &HealthStatus{
+		status := &StatusResponse{
 			Name:      h.appName,
 			Version:   h.version,
 			Status:    StatusUp,
@@ -101,12 +109,14 @@ func (h *HealthCheck) LivenessHandler() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(status)
+		if err := json.NewEncoder(w).Encode(status); err != nil {
+			h.log.Error("Failed to encode liveness status", logger.Error(err))
+		}
 	}
 }
 
 // ReadinessHandler handles the /health/readiness endpoint
-func (h *HealthCheck) ReadinessHandler() http.HandlerFunc {
+func (h *Checker) ReadinessHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -114,12 +124,14 @@ func (h *HealthCheck) ReadinessHandler() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpStatus)
-		json.NewEncoder(w).Encode(status)
+		if err := json.NewEncoder(w).Encode(status); err != nil {
+			h.log.Error("Failed to encode readiness status", logger.Error(err))
+		}
 	}
 }
 
 // getHealth performs health checks and returns the overall status
-func (h *HealthCheck) getHealth(ctx context.Context) (*HealthStatus, int) {
+func (h *Checker) getHealth(ctx context.Context) (*StatusResponse, int) {
 	h.mu.RLock()
 	cache := h.cache
 	lastUpdate := h.lastUpdate
@@ -172,7 +184,7 @@ func (h *HealthCheck) getHealth(ctx context.Context) (*HealthStatus, int) {
 		}
 	}
 
-	result := &HealthStatus{
+	result := &StatusResponse{
 		Name:        h.appName,
 		Version:     h.version,
 		Description: h.description,

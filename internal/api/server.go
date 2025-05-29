@@ -1,3 +1,5 @@
+// Package api provides the main HTTP server implementation for the Go API template.
+// It handles server initialization, configuration, and lifecycle management.
 package api
 
 import (
@@ -39,7 +41,7 @@ type Server struct {
 	log        logger.Logger
 	metrics    *metrics.Metrics
 	telemetry  *telemetry.Telemetry
-	health     *health.HealthCheck
+	health     *health.Checker
 	auth       *auth.Authenticator
 }
 
@@ -72,10 +74,10 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	}
 
 	// Initialize health check
-	healthCheck := health.NewHealthCheck(appName, appVersion, appDescription)
+	healthCheck := health.NewHealthCheck(appName, appVersion, appDescription, log)
 
 	// Initialize authenticator
-	authenticator, err := auth.NewAuthenticator(auth.AuthConfig{
+	authenticator, err := auth.NewAuthenticator(auth.Config{
 		JWTSecret:          cfg.Auth.JWTSecret,
 		JWTSigningMethod:   cfg.Auth.JWTSigningMethod,
 		JWTExpirationTime:  cfg.Auth.JWTExpirationTime,

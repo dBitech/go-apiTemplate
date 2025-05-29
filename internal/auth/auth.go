@@ -1,3 +1,5 @@
+// Package auth provides authentication and authorization functionality.
+// It includes JWT token validation, user authentication, and access control mechanisms.
 package auth
 
 import (
@@ -37,8 +39,8 @@ const (
 	JWTToken TokenType = "jwt"
 )
 
-// AuthConfig contains configuration for authentication
-type AuthConfig struct {
+// Config contains configuration for authentication
+type Config struct {
 	// JWT Configuration
 	JWTSecret         string          // Secret key for JWT signing (for HMAC algorithms)
 	JWTPrivateKey     *rsa.PrivateKey // Private key for JWT signing (for RSA algorithms)
@@ -78,7 +80,7 @@ type Authenticator struct {
 }
 
 // NewAuthenticator creates a new authenticator instance
-func NewAuthenticator(config AuthConfig, log logger.Logger) (*Authenticator, error) {
+func NewAuthenticator(config Config, log logger.Logger) (*Authenticator, error) {
 	var signingMethod jwt.SigningMethod
 
 	// Set JWT signing method based on configuration

@@ -1,3 +1,5 @@
+// Package telemetry provides OpenTelemetry tracing and observability functionality.
+// It includes trace initialization, span management, and telemetry configuration for distributed tracing.
 package telemetry
 
 import (

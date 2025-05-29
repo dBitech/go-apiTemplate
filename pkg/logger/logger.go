@@ -1,3 +1,5 @@
+// Package logger provides structured logging functionality for the application.
+// It includes logger configuration, structured logging utilities, and log level management.
 package logger
 
 import (
@@ -127,7 +129,7 @@ func (l *loggerImpl) With(fields ...Field) Logger {
 	return &loggerImpl{logger: l.logger.With(fields...)}
 }
 
-func (l *loggerImpl) WithContext(ctx context.Context) Logger {
+func (l *loggerImpl) WithContext(_ context.Context) Logger {
 	// Extract request ID or trace ID from context if available
 	// For now we'll just return the same logger
 	return l

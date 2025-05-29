@@ -1,70 +1,31 @@
+version: 2
+
+run:
+  go: "1.21"
+  timeout: 5m
+
 linters:
+  disable-all: true
   enable:
-    - deadcode
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - structcheck
-    - typecheck
-    - unused
-    - varcheck
-    - bodyclose
-    - depguard
-    - dogsled
-    - dupl
-    - funlen
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - goprintffuncname
-    - gosec
-    - interfacer
-    - lll
-    - maligned
-    - misspell
-    - nakedret
-    - prealloc
-    - rowserrcheck
-    - stylecheck
-    - unconvert
-    - unparam
-    - whitespace
+    - errcheck     # Check for unchecked errors
+    - govet        # Go vet examiner
+    - ineffassign  # Detect ineffectual assignments
+    - misspell     # Finds commonly misspelled English words
+    - revive       # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    - staticcheck  # Static analysis checks
 
 linters-settings:
-  errcheck:
-    check-type-assertions: true
-  govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0
-  gocyclo:
-    min-complexity: 15
-  maligned:
-    suggest-new: true
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 3
-  lll:
-    line-length: 140
-  funlen:
-    lines: 100
-    statements: 50
+  revive:
+    rules:
+      - name: exported
+        disabled: false
+      - name: unused-parameter
+        disabled: false
 
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - dupl
-        - funlen
-        - lll
-        
+        - errcheck
   max-issues-per-linter: 0
   max-same-issues: 0

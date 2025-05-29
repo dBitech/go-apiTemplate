@@ -17,6 +17,7 @@ import (
 	"github.com/dBiTech/go-apiTemplate/internal/handlers"
 	"github.com/dBiTech/go-apiTemplate/internal/models"
 	"github.com/dBiTech/go-apiTemplate/internal/repository"
+	"github.com/dBiTech/go-apiTemplate/internal/service"
 	"github.com/dBiTech/go-apiTemplate/pkg/logger"
 )
 
@@ -24,6 +25,9 @@ import (
 type MockService struct {
 	mock.Mock
 }
+
+// Ensure MockService implements service.Interface
+var _ service.Interface = (*MockService)(nil)
 
 func (m *MockService) GetExample(ctx context.Context, id string) (*models.Example, error) {
 	args := m.Called(ctx, id)
@@ -60,6 +64,22 @@ func (m *MockService) UpdateExample(ctx context.Context, id string, req *models.
 func (m *MockService) DeleteExample(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
+}
+
+func (m *MockService) ListProtectedResources(ctx context.Context) ([]*models.ProtectedResource, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.ProtectedResource), args.Error(1)
+}
+
+func (m *MockService) GetUserProfile(ctx context.Context, userID string) (*models.UserProfile, error) {
+	args := m.Called(ctx, userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.UserProfile), args.Error(1)
 }
 
 func TestHandlers(t *testing.T) {

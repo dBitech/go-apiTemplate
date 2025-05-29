@@ -144,7 +144,7 @@ func (s *Service) DeleteExample(ctx context.Context, id string) error {
 
 // GetUserProfile gets a user profile by ID
 func (s *Service) GetUserProfile(ctx context.Context, userID string) (*models.UserProfile, error) {
-	ctx, span := s.tel.Tracer("service").Start(ctx, "Service.GetUserProfile")
+	_, span := s.tel.Tracer("service").Start(ctx, "Service.GetUserProfile")
 	defer span.End()
 	span.SetAttributes(attribute.String("user.id", userID))
 
@@ -164,7 +164,7 @@ func (s *Service) GetUserProfile(ctx context.Context, userID string) (*models.Us
 
 // GetProtectedResource gets a protected resource by ID
 func (s *Service) GetProtectedResource(ctx context.Context, id string) (*models.ProtectedResource, error) {
-	ctx, span := s.tel.Tracer("service").Start(ctx, "Service.GetProtectedResource")
+	_, span := s.tel.Tracer("service").Start(ctx, "Service.GetProtectedResource")
 	defer span.End()
 	span.SetAttributes(attribute.String("resource.id", id))
 
@@ -184,7 +184,7 @@ func (s *Service) GetProtectedResource(ctx context.Context, id string) (*models.
 
 // ListProtectedResources lists protected resources
 func (s *Service) ListProtectedResources(ctx context.Context) ([]*models.ProtectedResource, error) {
-	ctx, span := s.tel.Tracer("service").Start(ctx, "Service.ListProtectedResources")
+	_, span := s.tel.Tracer("service").Start(ctx, "Service.ListProtectedResources")
 	defer span.End()
 
 	s.log.Debug("listing protected resources")

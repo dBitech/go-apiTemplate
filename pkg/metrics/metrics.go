@@ -1,3 +1,5 @@
+// Package metrics provides Prometheus metrics collection and monitoring functionality.
+// It includes metric registration, collection, and HTTP endpoint exposure for monitoring systems.
 package metrics
 
 import (
@@ -6,6 +8,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -74,8 +77,8 @@ func NewMetrics(namespace string) *Metrics {
 
 	// Register default Go collectors
 	registry.MustRegister(
-		prometheus.NewGoCollector(),
-		prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
+		collectors.NewGoCollector(),
+		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
 
 	return &Metrics{
