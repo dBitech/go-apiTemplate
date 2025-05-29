@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+    timeout: 1s
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "apiservice"
+    resource_to_telemetry_conversion:
+      enabled: true
+  
+  otlp:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
+  
+  logging:
+    loglevel: info
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, logging]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, logging]

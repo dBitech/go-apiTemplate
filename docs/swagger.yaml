@@ -1,0 +1,355 @@
+basePath: /api/v1
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  models.Example:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.ExampleRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
+  models.ProtectedResource:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      ownerId:
+        type: string
+    type: object
+  models.UserProfile:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      scopes:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: https://github.com/dBiTech/go-apiTemplate
+  description: A production-ready Go API template following best practices and dBi
+    Technologies API guidelines.
+  license:
+    name: MIT
+    url: https://github.com/dBiTech/go-apiTemplate/blob/main/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: dBi Technologies API Template
+  version: "1.0"
+paths:
+  /examples:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of examples with optional pagination
+      parameters:
+      - default: 10
+        description: Maximum number of results to return
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved examples
+          schema:
+            items:
+              $ref: '#/definitions/models.Example'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List examples
+      tags:
+      - examples
+    post:
+      consumes:
+      - application/json
+      description: Creates a new example resource
+      parameters:
+      - description: Example data
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/models.ExampleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created example
+          schema:
+            $ref: '#/definitions/models.Example'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Example already exists
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create new example
+      tags:
+      - examples
+  /examples/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an example by ID
+      parameters:
+      - description: Example ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted example
+        "404":
+          description: Example not found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete example
+      tags:
+      - examples
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single example by its ID
+      parameters:
+      - description: Example ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved example
+          schema:
+            $ref: '#/definitions/models.Example'
+        "404":
+          description: Example not found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get example by ID
+      tags:
+      - examples
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing example by ID
+      parameters:
+      - description: Example ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Example data
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/models.ExampleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated example
+          schema:
+            $ref: '#/definitions/models.Example'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Example not found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update example
+      tags:
+      - examples
+  /hello:
+    get:
+      consumes:
+      - application/json
+      description: Returns a friendly greeting
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully returned hello message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Hello world endpoint
+      tags:
+      - general
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: Returns the authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved user profile
+          schema:
+            $ref: '#/definitions/models.UserProfile'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - user
+  /protected/jwt:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of resources that require JWT authentication
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved protected resources
+          schema:
+            items:
+              $ref: '#/definitions/models.ProtectedResource'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: 'Forbidden: insufficient scope'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get JWT protected resources
+      tags:
+      - protected
+  /protected/oauth2:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of resources that require OAuth2 authentication
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved protected resources
+          schema:
+            items:
+              $ref: '#/definitions/models.ProtectedResource'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: 'Forbidden: insufficient scope'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get OAuth2 protected resources
+      tags:
+      - protected
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,29 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  readTimeout: 10s
+  writeTimeout: 10s
+  idleTimeout: 60s
+
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: ""
+  name: "apidb"
+  sslMode: "disable"
+
+logging:
+  level: "info"
+  format: "json"
+
+metrics:
+  enabled: true
+  host: "0.0.0.0"
+  port: 9090
+
+tracing:
+  enabled: true
+  endpoint: "localhost:4317"
+  serviceName: "api-service"

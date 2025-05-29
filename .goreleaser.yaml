@@ -1,0 +1,65 @@
+project_name: api-template
+
+builds:
+  - id: api-template
+    main: ./cmd/api
+    binary: api-template
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.Version={{.Version}} -X main.Commit={{.Commit}} -X main.BuildTime={{.Date}} -X main.BuildBy=goreleaser
+
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+
+dockers:
+  - image_templates:
+      - 'ghcr.io/dbitech/{{.ProjectName}}:{{ .Version }}'
+      - 'ghcr.io/dbitech/{{.ProjectName}}:latest'
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.title={{.ProjectName}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      - --label=org.opencontainers.image.revision={{.Commit}}
+      - --label=org.opencontainers.image.licenses=MIT
+
+nfpms:
+  - package_name: api-template
+    homepage: https://github.com/dBiTech/go-apiTemplate
+    maintainer: dBi Technologies <info@dbitech.com>
+    description: API Template Application
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    contents:
+      - src: ./config.yaml
+        dst: /etc/api-template/config.yaml
+        type: config
