@@ -1,31 +1,22 @@
-version: 2
+# golangci-lint v2.1.6 configuration
+version: "2"
 
 run:
   go: "1.21"
   timeout: 5m
 
 linters:
-  disable-all: true
   enable:
     - errcheck     # Check for unchecked errors
-    - govet        # Go vet examiner
+    - govet        # Go vet examiner  
     - ineffassign  # Detect ineffectual assignments
     - misspell     # Finds commonly misspelled English words
     - revive       # Fast, configurable, extensible, flexible, and beautiful linter for Go
     - staticcheck  # Static analysis checks
-
-linters-settings:
-  revive:
-    rules:
-      - name: exported
-        disabled: false
-      - name: unused-parameter
-        disabled: false
+    - unused       # Check for unused constants, variables, functions and types
+    - gocritic     # Provides diagnostics that check for bugs, performance and style issues
+    - unconvert    # Remove unnecessary type conversions
 
 issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
   max-issues-per-linter: 0
   max-same-issues: 0
