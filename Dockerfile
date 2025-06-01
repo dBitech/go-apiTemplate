@@ -18,7 +18,7 @@ COPY . .
 RUN make build
 
 # Final stage
-FROM alpine:3.21
+FROM alpine:3.22
 
 # Set working directory
 WORKDIR /app
